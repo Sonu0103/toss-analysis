@@ -9,6 +9,7 @@ const importController = require("../controllers/importController");
 router.get("/matches", matchController.getAllMatches);
 router.post("/matches/query", matchController.getMatchesByTeams);
 router.get("/toss-analysis", matchController.getTossAnalysis);
+router.get("/match-stats", matchController.getMatchStats);
 
 // Player routes
 router.get("/player-performance", playerController.getPlayerPerformance);

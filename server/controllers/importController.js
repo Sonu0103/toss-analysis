@@ -19,17 +19,17 @@ exports.importData = async (req, res) => {
 
     // Process matches CSV
     const matches = await csv().fromFile(matchesPath);
-
-    // Log the first match to check the data structure
-    console.log("Sample match data:", matches[0]);
+    console.log("Sample match from CSV:", matches[0]);
 
     // Convert date strings to Date objects and numeric fields
     const processedMatches = matches.map((match) => {
-      // Log any problematic records
-      if (!match.season || isNaN(Number(match.season))) {
-        console.log("Invalid season value:", match);
+      // Ensure match_id is a string and matches the format in deliveries
+      const match_id = match.id || match.match_id;
+      if (!match_id) {
+        console.log("No ID found for match:", match);
       }
       return {
+        match_id: match_id,
         season: match.season ? Number(match.season) || 0 : 0,
         city: match.city || "",
         team1: match.team1 || "",
@@ -47,20 +47,35 @@ exports.importData = async (req, res) => {
 
     // Process deliveries CSV
     const deliveries = await csv().fromFile(deliveriesPath);
+    console.log("Sample delivery from CSV:", deliveries[0]);
 
     // Convert numeric fields
     const processedDeliveries = deliveries.map((delivery) => ({
-      match_id: delivery.match_id ? delivery.match_id.toString() : "",
+      // Ensure match_id is a string and matches the format in matches
+      match_id: delivery.match_id.toString(),
       inning: delivery.inning ? Number(delivery.inning) || 0 : 0,
       batting_team: delivery.batting_team || "",
       bowling_team: delivery.bowling_team || "",
-      batsman: delivery.batsman || "",
+      batsman: delivery.batter || "",
       bowler: delivery.bowler || "",
       batsman_runs: delivery.batsman_runs
         ? Number(delivery.batsman_runs) || 0
         : 0,
       total_runs: delivery.total_runs ? Number(delivery.total_runs) || 0 : 0,
+      over: delivery.over ? Number(delivery.over) || 0 : 0,
+      ball: delivery.ball ? Number(delivery.ball) || 0 : 0,
+      non_striker: delivery.non_striker || "",
+      extra_runs: delivery.extra_runs ? Number(delivery.extra_runs) || 0 : 0,
+      extras_type: delivery.extras_type || "",
+      is_wicket: delivery.is_wicket ? Number(delivery.is_wicket) || 0 : 0,
+      player_dismissed: delivery.player_dismissed || "",
+      dismissal_kind: delivery.dismissal_kind || "",
+      fielder: delivery.fielder || "",
     }));
+
+    // Debug log
+    console.log("Sample processed match:", processedMatches[0]);
+    console.log("Sample processed delivery:", processedDeliveries[0]);
 
     // Clear existing data
     await Match.deleteMany({});

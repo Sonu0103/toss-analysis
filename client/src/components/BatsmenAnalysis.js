@@ -1,18 +1,25 @@
 import React from "react";
 
 const BatsmenAnalysis = ({ data, team1, team2 }) => {
+  console.log("BatsmenAnalysis Data:", data);
+  console.log("Team1:", team1);
+  console.log("Team2:", team2);
+
   if (!data || data.length === 0) return null;
 
   // Separate and sort batsmen by team
   const team1Batsmen = data
-    .filter((player) => player.battingTeam === team1)
+    .filter((player) => player.battingTeam === team1 && player.batsman)
     .sort((a, b) => b.totalRuns - a.totalRuns)
     .slice(0, 5);
 
   const team2Batsmen = data
-    .filter((player) => player.battingTeam === team2)
+    .filter((player) => player.battingTeam === team2 && player.batsman)
     .sort((a, b) => b.totalRuns - a.totalRuns)
     .slice(0, 5);
+
+  console.log("Team1 Batsmen:", team1Batsmen);
+  console.log("Team2 Batsmen:", team2Batsmen);
 
   return (
     <div className="space-y-6">
@@ -20,7 +27,7 @@ const BatsmenAnalysis = ({ data, team1, team2 }) => {
         {/* Team 1 Top Batsmen */}
         <div className="bg-green-50 p-6 rounded-lg">
           <h3 className="text-xl font-bold text-green-800 mb-4">
-            {team1} Top Batsmen
+            {team1} Top 5 Batsmen
           </h3>
           <div className="overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200">
@@ -36,16 +43,22 @@ const BatsmenAnalysis = ({ data, team1, team2 }) => {
                     Runs
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    Matches
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                     SR
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                     Avg
                   </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    4s/6s
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {team1Batsmen.map((player, index) => (
-                  <tr key={player._id} className="hover:bg-green-100">
+                  <tr key={player.batsman} className="hover:bg-green-100">
                     <td className="px-4 py-2 whitespace-nowrap text-sm">
                       {index + 1}
                     </td>
@@ -56,10 +69,16 @@ const BatsmenAnalysis = ({ data, team1, team2 }) => {
                       {player.totalRuns}
                     </td>
                     <td className="px-4 py-2 whitespace-nowrap text-sm">
+                      {player.matchesPlayed}
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm">
                       {player.strikeRate.toFixed(1)}
                     </td>
                     <td className="px-4 py-2 whitespace-nowrap text-sm">
-                      {(player.totalRuns / player.matchesPlayed).toFixed(1)}
+                      {player.average.toFixed(1)}
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm">
+                      {player.fours}/{player.sixes}
                     </td>
                   </tr>
                 ))}
@@ -87,16 +106,22 @@ const BatsmenAnalysis = ({ data, team1, team2 }) => {
                     Runs
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    Matches
+                  </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                     SR
                   </th>
                   <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
                     Avg
                   </th>
+                  <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase">
+                    4s/6s
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {team2Batsmen.map((player, index) => (
-                  <tr key={player._id} className="hover:bg-purple-100">
+                  <tr key={player.batsman} className="hover:bg-purple-100">
                     <td className="px-4 py-2 whitespace-nowrap text-sm">
                       {index + 1}
                     </td>
@@ -107,10 +132,16 @@ const BatsmenAnalysis = ({ data, team1, team2 }) => {
                       {player.totalRuns}
                     </td>
                     <td className="px-4 py-2 whitespace-nowrap text-sm">
+                      {player.matchesPlayed}
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm">
                       {player.strikeRate.toFixed(1)}
                     </td>
                     <td className="px-4 py-2 whitespace-nowrap text-sm">
-                      {(player.totalRuns / player.matchesPlayed).toFixed(1)}
+                      {player.average.toFixed(1)}
+                    </td>
+                    <td className="px-4 py-2 whitespace-nowrap text-sm">
+                      {player.fours}/{player.sixes}
                     </td>
                   </tr>
                 ))}

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { API_URL } from "../config";
 import TeamSelector from "./TeamSelector";
 import MatchTable from "./MatchTable";
 import TossChart from "./TossChart";
-import BatsmenAnalysis from "./BatsmenAnalysis";
 import LoadingSpinner from "./LoadingSpinner";
 import MatchSummary from "./MatchSummary";
 import MatchPrediction from "./MatchPrediction";
@@ -13,24 +13,21 @@ const Dashboard = () => {
   const [selectedTeams, setSelectedTeams] = useState({ team1: "", team2: "" });
   const [matches, setMatches] = useState([]);
   const [tossData, setTossData] = useState([]);
-  const [batsmenData, setBatsmenData] = useState([]);
   const [loading, setLoading] = useState({
     teams: true,
     matches: false,
     toss: true,
-    batsmen: true,
   });
   const [error, setError] = useState({
     teams: null,
     matches: null,
     toss: null,
-    batsmen: null,
   });
 
   const fetchTeams = async () => {
     try {
       setLoading((prev) => ({ ...prev, teams: true }));
-      const response = await axios.get("http://localhost:5000/api/matches");
+      const response = await axios.get(`${API_URL}/matches`);
       const uniqueTeams = [
         ...new Set(
           response.data.flatMap((match) => [match.team1, match.team2])
@@ -51,7 +48,6 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchTeams();
-    fetchPlayerPerformance();
   }, []);
 
   // Fetch toss analysis when teams are selected
@@ -67,7 +63,7 @@ const Dashboard = () => {
         setLoading((prev) => ({ ...prev, matches: true }));
         setError((prev) => ({ ...prev, matches: null }));
         const response = await axios.post(
-          "http://localhost:5000/api/matches/query",
+          `${API_URL}/matches/query`,
           selectedTeams
         );
         setMatches(response.data);
@@ -107,38 +103,6 @@ const Dashboard = () => {
       setLoading((prev) => ({ ...prev, toss: false }));
     }
   };
-
-  const fetchPlayerPerformance = async () => {
-    try {
-      setLoading((prev) => ({ ...prev, batsmen: true }));
-      const response = await axios.get(
-        "http://localhost:5000/api/player-performance",
-        {
-          params: {
-            team1: selectedTeams.team1,
-            team2: selectedTeams.team2,
-          },
-        }
-      );
-      setBatsmenData(response.data);
-      setError((prev) => ({ ...prev, batsmen: null }));
-    } catch (error) {
-      console.error("Error fetching player performance:", error);
-      setError((prev) => ({
-        ...prev,
-        batsmen: "Failed to load batsmen data. Please try again.",
-      }));
-    } finally {
-      setLoading((prev) => ({ ...prev, batsmen: false }));
-    }
-  };
-
-  // Add useEffect to fetch player performance when teams change
-  useEffect(() => {
-    if (selectedTeams.team1 && selectedTeams.team2) {
-      fetchPlayerPerformance();
-    }
-  }, [selectedTeams]);
 
   return (
     <div className="space-y-8">
@@ -194,20 +158,6 @@ const Dashboard = () => {
             <LoadingSpinner />
           ) : (
             <TossChart data={tossData} />
-          )}
-        </div>
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold mb-4">Top Batsmen Analysis</h2>
-          {error.batsmen ? (
-            <div className="text-red-500">{error.batsmen}</div>
-          ) : loading.batsmen ? (
-            <LoadingSpinner />
-          ) : (
-            <BatsmenAnalysis
-              data={batsmenData}
-              team1={selectedTeams.team1}
-              team2={selectedTeams.team2}
-            />
           )}
         </div>
       </div>
